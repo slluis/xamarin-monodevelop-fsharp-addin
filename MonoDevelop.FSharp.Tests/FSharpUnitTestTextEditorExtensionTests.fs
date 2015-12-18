@@ -24,7 +24,7 @@ type TestFixtureAttribute() =
   inherit Attribute()
 type IgnoreAttribute() =
   inherit Attribute()
-type TestCaseAttribute() =
+type TestCaseAttribute(arg:obj) =
   inherit Attribute()
 """
         gatherTests (attributes + text)
@@ -130,3 +130,18 @@ type Test() =
         let tests = gatherTests normalAndDoubleTick
 
         tests.Length |> should equal 0
+
+    [<Test>]
+    member x.``Shows test case identifier`` () =
+        let fixture = """
+open NUnit.Framework
+[TestFixture]
+type Fixture() =
+  [<Test>]
+  [<TestCase(1)>]
+  member x.atest (i) =
+    ()
+"""
+        let tests = gatherTestsWithReference fixture
+
+        tests.[0].UnitTestIdentifier |> should equal "atest(1)"
